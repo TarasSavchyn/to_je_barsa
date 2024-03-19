@@ -1,45 +1,43 @@
+import os
+import dotenv
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
 
-class Match(Base):
-    __tablename__ = 'matches'
-    id = Column(Integer, primary_key=True)
-    home_team = Column(String)
-    away_team = Column(String)
-    home_goals = Column(Integer)
-    away_goals = Column(Integer)
-    tournament_id = Column(Integer, ForeignKey('tournaments.id'))
-
-
-class Tournament(Base):
-    __tablename__ = 'tournaments'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    rounds = relationship('Round', back_populates='tournament')
-    teams = relationship('Team', secondary='tournament_teams')
-
-
-class Round(Base):
-    __tablename__ = 'rounds'
-    id = Column(Integer, primary_key=True)
-    number = Column(Integer)
-    start_date = Column(String)
-    end_date = Column(String)
-    tournament_id = Column(Integer, ForeignKey('tournaments.id'))
-    tournament = relationship('Tournament', back_populates='rounds')
-    matches = relationship('Match', back_populates='round')
-
-
 class Team(Base):
-    __tablename__ = 'teams'
+    __tablename__ = "teams"
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    league_points = Column(Integer)
 
 
+# class Game(Base):
+#     __tablename__ = "games"
+#     id = Column(Integer, primary_key=True)
+#     home_team_id = Column(Integer, ForeignKey("teams.id"))
+#     away_team_id = Column(Integer, ForeignKey("teams.id"))
+#     home_team = relationship("Team", foreign_keys=[home_team_id])
+#     away_team = relationship("Team", foreign_keys=[away_team_id])
+#     home_goals = Column(Integer)
+#     away_goals = Column(Integer)
 
-engine = create_engine('sqlite:///base.db')
+
+class League(Base):
+    __tablename__ = "leagues"
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    teams = relationship("Team", secondary="league_teams")
+
+
+class Cup(Base):
+    __tablename__ = "cups"
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    teams = relationship("Team", secondary="cup_teams")
+
+
+engine = create_engine("sqlite:///base.db")
 Base.metadata.create_all(engine)
